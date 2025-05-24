@@ -1,5 +1,7 @@
 package view;
 
+import dao.CompanieDAO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -77,13 +79,21 @@ public class LoginCompanieView extends JFrame {
         String username = username_field.getText();
         String password = new String(password_field.getPassword());
 
-        if (username.equals("admin") && password.equals("admin")) {
-            message_lbl.setForeground(new Color(0,128,0));  // verde
-            message_lbl.setText("Autentificare reușită!");
-            // deschidere fereeastra gestionare zboruri
-        } else {
+        try {
+            CompanieDAO dao = new CompanieDAO();
+
+            boolean rezultat = dao.autentifica(username, password);
+            if (rezultat) {
+                message_lbl.setForeground(new Color(0,128,0));  // verde
+                message_lbl.setText("Autentificare reușită!");
+                // deschidere fereastra gestionare zboruri
+            } else {
+                message_lbl.setForeground(Color.RED);
+                message_lbl.setText("Date invalide, încearcă din nou.");
+            }
+        } catch (Exception ex) {
             message_lbl.setForeground(Color.RED);
-            message_lbl.setText("Date invalide, încearcă din nou.");
+            message_lbl.setText("Eroare conexiune BD: " + ex.getMessage());
         }
     }
 
