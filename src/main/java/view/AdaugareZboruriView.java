@@ -2,8 +2,10 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import controller.ZborController;
 
 public class AdaugareZboruriView extends JFrame {
+    private ZborController controller = new ZborController();
 
     private JTextField tfCodCursa, tfModelAvion, tfOrasPlecare, tfOrasDestinatie;
     private JTextField tfNrLocuri, tfTarif, tfZileSaptamana, tfOra;
@@ -152,35 +154,83 @@ public class AdaugareZboruriView extends JFrame {
         adaugaRand(label("Perioadă Final:"), tfPerioadaFinal, y++);
     }
 
+//    private void salveazaZbor() {
+//        String codCursa = tfCodCursa.getText();
+//        String modelAvion = tfModelAvion.getText();
+//        String orasPlecare = tfOrasPlecare.getText();
+//        String orasDestinatie = tfOrasDestinatie.getText();
+//        String nrLocuri = tfNrLocuri.getText();
+//        String tarif = tfTarif.getText();
+//        String zileSaptamana = tfZileSaptamana.getText();
+//        String ora = tfOra.getText();
+//
+//        String clasa = rbBusiness.isSelected() ? "Business" :
+//                rbClasa1.isSelected() ? "Clasa 1" : "Economie";
+//
+//        if (radioRegulat.isSelected()) {
+//            JOptionPane.showMessageDialog(this, "Zbor REGULAT salvat:\n" +
+//                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
+//                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
+//                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
+//                    "Zile: " + zileSaptamana + ", Ora: " + ora);
+//        } else {
+//            String perioadaInceput = tfPerioadaInceput.getText();
+//            String perioadaFinal = tfPerioadaFinal.getText();
+//
+//            JOptionPane.showMessageDialog(this, "Zbor SEZONIER salvat:\n" +
+//                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
+//                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
+//                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
+//                    "Zile: " + zileSaptamana + ", Ora: " + ora + "\n" +
+//                    "Perioadă: " + perioadaInceput + " → " + perioadaFinal);
+//        }
+//    }
+
     private void salveazaZbor() {
-        String codCursa = tfCodCursa.getText();
-        String modelAvion = tfModelAvion.getText();
-        String orasPlecare = tfOrasPlecare.getText();
-        String orasDestinatie = tfOrasDestinatie.getText();
-        String nrLocuri = tfNrLocuri.getText();
-        String tarif = tfTarif.getText();
-        String zileSaptamana = tfZileSaptamana.getText();
-        String ora = tfOra.getText();
+        try {
+            String codCursa = tfCodCursa.getText();
+            String modelAvion = tfModelAvion.getText();
+            String orasPlecare = tfOrasPlecare.getText();
+            String orasDestinatie = tfOrasDestinatie.getText();
+            int nrLocuri = Integer.parseInt(tfNrLocuri.getText());
+            double tarif = Double.parseDouble(tfTarif.getText());
+            String clasa = rbBusiness.isSelected() ? "Business" :
+                    rbClasa1.isSelected() ? "Clasa1" : "Economie";
 
-        String clasa = rbBusiness.isSelected() ? "Business" :
-                rbClasa1.isSelected() ? "Clasa 1" : "Economie";
+            if (radioRegulat.isSelected()) {
+                String[] zileArray = tfZileSaptamana.getText().split(",");
+                String ora = tfOra.getText();
 
-        if (radioRegulat.isSelected()) {
-            JOptionPane.showMessageDialog(this, "Zbor REGULAT salvat:\n" +
-                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
-                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
-                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
-                    "Zile: " + zileSaptamana + ", Ora: " + ora);
-        } else {
-            String perioadaInceput = tfPerioadaInceput.getText();
-            String perioadaFinal = tfPerioadaFinal.getText();
+                boolean success = controller.adaugaZborRegulat(
+                        codCursa, modelAvion, orasPlecare, orasDestinatie,
+                        clasa, nrLocuri, tarif, zileArray, ora
+                );
 
-            JOptionPane.showMessageDialog(this, "Zbor SEZONIER salvat:\n" +
-                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
-                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
-                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
-                    "Zile: " + zileSaptamana + ", Ora: " + ora + "\n" +
-                    "Perioadă: " + perioadaInceput + " → " + perioadaFinal);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Zbor regulat adăugat cu succes!");
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Eroare la adăugarea zborului!", "Eroare", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                String perioadaInceput = tfPerioadaInceput.getText();
+                String perioadaFinal = tfPerioadaFinal.getText();
+
+                boolean success = controller.adaugaZborSezonier(
+                        codCursa, modelAvion, orasPlecare, orasDestinatie,
+                        clasa, nrLocuri, tarif, perioadaInceput, perioadaFinal
+                );
+
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Zbor sezonier adăugat cu succes!");
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Eroare la adăugarea zborului!", "Eroare", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Eroare: " + e.getMessage(), "Eroare", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
