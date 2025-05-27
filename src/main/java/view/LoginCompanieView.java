@@ -1,6 +1,7 @@
 package view;
 
 import dao.CompanieDAO;
+import view.GestionareZboruriView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,34 +15,30 @@ public class LoginCompanieView extends JFrame {
     private JLabel message_lbl;
 
     public LoginCompanieView() {
-        setTitle("Login Companie Aeriana"); // titlu fereastra
-        setSize(350, 200); // dimensiune fereastra
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // inchidere aplicatie
-        setLocationRelativeTo(null); // centrare fereastra pe ecran
+        setTitle("Login Companie Aeriana");
+        setSize(350, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-        // creare panel principal
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        // cream labeluri cu aceeasi dimensiune
         JLabel usernameLabel = new JLabel("Username:", SwingConstants.RIGHT);
         JLabel passwordLabel = new JLabel("Parola:", SwingConstants.RIGHT);
-        Dimension labelSize = new Dimension(80, 20); // latime fixa pt aliniere
+        Dimension labelSize = new Dimension(80, 20);
         usernameLabel.setPreferredSize(labelSize);
         passwordLabel.setPreferredSize(labelSize);
 
-        // username label + field
-        gbc.gridx = 0; // coloana
-        gbc.gridy = 0; // rand
-        gbc.insets = new Insets(5,5,5,5); // padding
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
         panel.add(usernameLabel, gbc);
 
         gbc.gridx = 1;
         username_field = new JTextField(15);
         panel.add(username_field, gbc);
 
-        // password label + field
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(passwordLabel, gbc);
@@ -50,7 +47,6 @@ public class LoginCompanieView extends JFrame {
         password_field = new JPasswordField(15);
         panel.add(password_field, gbc);
 
-        // buton login
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -58,7 +54,6 @@ public class LoginCompanieView extends JFrame {
         login_btn = new JButton("Login");
         panel.add(login_btn, gbc);
 
-        // label mesaj eroare/succes
         gbc.gridy = 3;
         message_lbl = new JLabel("", SwingConstants.CENTER);
         message_lbl.setForeground(Color.RED);
@@ -66,7 +61,6 @@ public class LoginCompanieView extends JFrame {
 
         add(panel);
 
-        // listener buton login
         login_btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -81,12 +75,18 @@ public class LoginCompanieView extends JFrame {
 
         try {
             CompanieDAO dao = new CompanieDAO();
-
             boolean rezultat = dao.autentifica(username, password);
+
             if (rezultat) {
-                message_lbl.setForeground(new Color(0,128,0));  // verde
+                message_lbl.setForeground(new Color(0, 128, 0));
                 message_lbl.setText("Autentificare reușită!");
-                // deschidere fereastra gestionare zboruri
+
+                // Deschide fereastra GestionareZboruriView
+                SwingUtilities.invokeLater(() -> {
+                    new GestionareZboruriView().setVisible(true);
+                });
+
+                dispose(); // Închide fereastra de login
             } else {
                 message_lbl.setForeground(Color.RED);
                 message_lbl.setText("Date invalide, încearcă din nou.");
