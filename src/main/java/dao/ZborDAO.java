@@ -1,93 +1,3 @@
-//package dao;
-//
-//import model.*;
-//import util.DatabaseConnection;
-//
-//import java.sql.*;
-//import java.time.LocalDate;
-//import java.time.LocalTime;
-//import java.util.*;
-//
-//public class ZborDAO {
-//
-//    public List<Zbor> getAllZboruri() {
-//        List<Zbor> zboruri = new ArrayList<>();
-//        String queryZboruri = "SELECT * FROM Zboruri";
-//
-//        try (Connection conn = DatabaseConnection.getConnection();
-//             PreparedStatement stmt = conn.prepareStatement(queryZboruri);
-//             ResultSet rs = stmt.executeQuery()) {
-//
-//            while (rs.next()) {
-//                int zborId = rs.getInt("id");
-//                int codCursaInt = rs.getInt("cod_cursa");
-//                String codCursa = String.valueOf(codCursaInt);
-//                String modelAvion = rs.getString("model_avion");
-//                String tip = rs.getString("tip");
-//                String orasPlecare = rs.getString("oras_plecare");
-//                String orasDestinatie = rs.getString("oras_destinatie");
-//
-//                Map<Clasa, Integer> locuri = new HashMap<>();
-//                Map<Clasa, Double> tarife = new HashMap<>();
-//
-//                String claseQuery = "SELECT * FROM ClaseZbor WHERE zbor_id = ?";
-//                try (PreparedStatement claseStmt = conn.prepareStatement(claseQuery)) {
-//                    claseStmt.setInt(1, zborId);
-//                    try (ResultSet claseRs = claseStmt.executeQuery()) {
-//                        while (claseRs.next()) {
-//                            Clasa clasa = Clasa.valueOf(claseRs.getString("clasa").toUpperCase());
-//                            locuri.put(clasa, claseRs.getInt("nr_locuriClasa"));
-//                            tarife.put(clasa, claseRs.getDouble("tarif"));
-//                        }
-//                    }
-//                }
-//
-//                if ("regulat".equalsIgnoreCase(tip)) {
-//                    List<ZiSaptamana> zile = new ArrayList<>();
-//                    LocalTime ora = null;
-//
-//                    String regulatQuery = "SELECT * FROM ZboruriRegulate WHERE zbor_id = ?";
-//                    try (PreparedStatement regStmt = conn.prepareStatement(regulatQuery)) {
-//                        regStmt.setInt(1, zborId);
-//                        try (ResultSet regRs = regStmt.executeQuery()) {
-//                            while (regRs.next()) {
-//                                zile.add(ZiSaptamana.valueOf(regRs.getString("zi_saptamana").toUpperCase()));
-//                                ora = regRs.getTime("ora").toLocalTime();
-//                            }
-//                        }
-//                    }
-//
-//                    ZboruriRegulate zborRegulat = new ZboruriRegulate(codCursa, modelAvion, orasPlecare, orasDestinatie, locuri, tarife, zile, ora);
-//                    zboruri.add(zborRegulat);
-//
-//                } else if ("sezonier".equalsIgnoreCase(tip)) {
-//                    LocalDate perioadaInceput = null;
-//                    LocalDate perioadaSfarsit = null;
-//
-//                    String sezonierQuery = "SELECT * FROM ZboruriSezoniere WHERE zbor_id = ?";
-//                    try (PreparedStatement sezStmt = conn.prepareStatement(sezonierQuery)) {
-//                        sezStmt.setInt(1, zborId);
-//                        try (ResultSet sezRs = sezStmt.executeQuery()) {
-//                            if (sezRs.next()) {
-//                                perioadaInceput = sezRs.getDate("perioada_inceput").toLocalDate();
-//                                perioadaSfarsit = sezRs.getDate("perioada_sfarsit").toLocalDate();
-//                            }
-//                        }
-//                    }
-//
-//                    ZboruriSezoniere zborSezonier = new ZboruriSezoniere(codCursa, modelAvion, orasPlecare, orasDestinatie, locuri, tarife, perioadaInceput, perioadaSfarsit);
-//                    zboruri.add(zborSezonier);
-//                }
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return zboruri;
-//    }
-//}
-
 package dao;
 
 import model.*;
@@ -96,94 +6,97 @@ import util.DatabaseConnection;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+//import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 
 public class ZborDAO {
-
     public List<Zbor> getAllZboruri() {
         List<Zbor> zboruri = new ArrayList<>();
-        String queryZboruri = "SELECT * FROM Zboruri";
+        String query = "SELECT z.*, zr.zi_saptamana, zr.ora, zs.perioada_inceput, zs.perioada_sfarsit " +
+                "FROM Zboruri z " +
+                "LEFT JOIN ZboruriRegulate zr ON z.id = zr.zbor_id " +
+                "LEFT JOIN ZboruriSezoniere zs ON z.id = zs.zbor_id";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(queryZboruri);
+             PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                int zborId = rs.getInt("id");
-                int codCursaInt = rs.getInt("cod_cursa");
-                String codCursa = String.valueOf(codCursaInt);
-                String modelAvion = rs.getString("model_avion");
+                String codCursa = String.valueOf(rs.getInt("cod_cursa"));
+                String model = rs.getString("model_avion");
                 String tip = rs.getString("tip");
-                String orasPlecare = rs.getString("oras_plecare");
-                String orasDestinatie = rs.getString("oras_destinatie");
+                String plecare = rs.getString("oras_plecare");
+                String destinatie = rs.getString("oras_destinatie");
+                int zborId = rs.getInt("id");
 
                 Map<Clasa, Integer> locuri = new HashMap<>();
                 Map<Clasa, Double> tarife = new HashMap<>();
-
-                String claseQuery = "SELECT * FROM ClaseZbor WHERE zbor_id = ?";
-                try (PreparedStatement claseStmt = conn.prepareStatement(claseQuery)) {
-                    claseStmt.setInt(1, zborId);
-                    try (ResultSet claseRs = claseStmt.executeQuery()) {
-                        while (claseRs.next()) {
-                            Clasa clasa = Clasa.valueOf(claseRs.getString("clasa").toUpperCase());
-                            locuri.put(clasa, claseRs.getInt("nr_locuriClasa"));
-                            tarife.put(clasa, claseRs.getDouble("tarif"));
-                        }
-                    }
-                }
+                incarcaClaseZbor(conn, zborId, locuri, tarife);
 
                 if ("regulat".equalsIgnoreCase(tip)) {
                     List<ZiSaptamana> zile = new ArrayList<>();
+                    String zi = rs.getString("zi_saptamana");
+                    if (zi != null) {
+                        zile.add(ZiSaptamana.valueOf(zi.toUpperCase()));
+                    }
+
                     LocalTime ora = null;
-
-                    String regulatQuery = "SELECT * FROM ZboruriRegulate WHERE zbor_id = ?";
-                    try (PreparedStatement regStmt = conn.prepareStatement(regulatQuery)) {
-                        regStmt.setInt(1, zborId);
-                        try (ResultSet regRs = regStmt.executeQuery()) {
-                            while (regRs.next()) {
-                                zile.add(ZiSaptamana.valueOf(regRs.getString("zi_saptamana").toUpperCase()));
-                                ora = regRs.getTime("ora").toLocalTime();
-                            }
-                        }
+                    Time time = rs.getTime("ora");
+                    if (time != null) {
+                        ora = time.toLocalTime();
                     }
 
-                    ZboruriRegulate zborRegulat = new ZboruriRegulate(codCursa, modelAvion, orasPlecare, orasDestinatie, locuri, tarife, zile, ora);
-                    zboruri.add(zborRegulat);
-
+                    zboruri.add(new ZboruriRegulate(codCursa, model, plecare, destinatie, locuri, tarife, zile, ora));
                 } else if ("sezonier".equalsIgnoreCase(tip)) {
-                    LocalDate perioadaInceput = null;
-                    LocalDate perioadaSfarsit = null;
-
-                    String sezonierQuery = "SELECT * FROM ZboruriSezoniere WHERE zbor_id = ?";
-                    try (PreparedStatement sezStmt = conn.prepareStatement(sezonierQuery)) {
-                        sezStmt.setInt(1, zborId);
-                        try (ResultSet sezRs = sezStmt.executeQuery()) {
-                            if (sezRs.next()) {
-                                perioadaInceput = sezRs.getDate("perioada_inceput").toLocalDate();
-                                perioadaSfarsit = sezRs.getDate("perioada_sfarsit").toLocalDate();
-                            }
-                        }
+                    LocalDate inceput = null;
+                    java.sql.Date start = rs.getDate("perioada_inceput");
+                    if (start != null) {
+                        inceput = start.toLocalDate();
                     }
 
-                    ZboruriSezoniere zborSezonier = new ZboruriSezoniere(codCursa, modelAvion, orasPlecare, orasDestinatie, locuri, tarife, perioadaInceput, perioadaSfarsit);
-                    zboruri.add(zborSezonier);
+                    LocalDate sfarsit = null;
+                    java.sql.Date end = rs.getDate("perioada_sfarsit");
+                    if (end != null) {
+                        sfarsit = end.toLocalDate();
+                    }
+
+                    zboruri.add(new ZboruriSezoniere(codCursa, model, plecare, destinatie, locuri, tarife, inceput, sfarsit));
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return zboruri;
+    }
+
+    private void incarcaClaseZbor(Connection conn, int zborId,
+                                  Map<Clasa, Integer> locuri,
+                                  Map<Clasa, Double> tarife) throws SQLException {
+        String query = "SELECT * FROM ClaseZbor WHERE zbor_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, zborId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Clasa clasa = Clasa.valueOf(rs.getString("clasa").toUpperCase());
+                    locuri.put(clasa, rs.getInt("nr_locuriClasa"));
+                    tarife.put(clasa, rs.getDouble("tarif"));
+                }
+            }
+        }
     }
 
     public boolean stergeZbor(String codCursa) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
 
-            // 1. Obține ID-ul zborului
             int zborId = -1;
             String getZborIdQuery = "SELECT id FROM Zboruri WHERE cod_cursa = ?";
             try (PreparedStatement stmt = conn.prepareStatement(getZborIdQuery)) {
@@ -192,25 +105,22 @@ public class ZborDAO {
                 if (rs.next()) {
                     zborId = rs.getInt("id");
                 } else {
-                    return false; // Zborul nu există
+                    return false;
                 }
             }
 
-            // 2. Șterge din RezervariZboruri
             String deleteRezervariQuery = "DELETE FROM RezervariZboruri WHERE zbor_id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(deleteRezervariQuery)) {
                 stmt.setInt(1, zborId);
                 stmt.executeUpdate();
             }
 
-            // 3. Șterge din ClaseZbor
             String deleteClaseQuery = "DELETE FROM ClaseZbor WHERE zbor_id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(deleteClaseQuery)) {
                 stmt.setInt(1, zborId);
                 stmt.executeUpdate();
             }
 
-            // 4. Șterge din ZboruriRegulate sau ZboruriSezoniere
             String deleteRegulateQuery = "DELETE FROM ZboruriRegulate WHERE zbor_id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(deleteRegulateQuery)) {
                 stmt.setInt(1, zborId);
@@ -223,7 +133,6 @@ public class ZborDAO {
                 stmt.executeUpdate();
             }
 
-            // 5. Șterge din Zboruri
             String deleteZborQuery = "DELETE FROM Zboruri WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(deleteZborQuery)) {
                 stmt.setInt(1, zborId);
@@ -256,4 +165,150 @@ public class ZborDAO {
             }
         }
     }
+
+    public boolean adaugaZborRegulat(String codCursa, String modelAvion, String orasPlecare,
+                                     String orasDestinatie, String clasa, int nrLocuri,
+                                     double tarif, String[] zileSaptamana, String ora) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Adaugă în Zboruri
+            String sqlZbor = "INSERT INTO Zboruri (companie_id, cod_cursa, model_avion, tip, oras_plecare, oras_destinatie) " +
+                    "VALUES (1, ?, ?, 'regulat', ?, ?)";
+            int zborId;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sqlZbor, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setInt(1, Integer.parseInt(codCursa));
+                stmt.setString(2, modelAvion);
+                stmt.setString(3, orasPlecare);
+                stmt.setString(4, orasDestinatie);
+                stmt.executeUpdate();
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        zborId = rs.getInt(1);
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            // 2. Adaugă în ZboruriRegulate
+            String sqlZborRegulat = "INSERT INTO ZboruriRegulate (zbor_id, zi_saptamana, ora) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlZborRegulat)) {
+                for (String zi : zileSaptamana) {
+                    stmt.setInt(1, zborId);
+                    stmt.setString(2, zi.trim());
+                    stmt.setTime(3, Time.valueOf(ora + ":00"));
+                    stmt.addBatch();
+                }
+                stmt.executeBatch();
+            }
+
+            // 3. Adaugă în ClaseZbor
+            String sqlClasa = "INSERT INTO ClaseZbor (zbor_id, clasa, nr_locuriClasa, tarif) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlClasa)) {
+                stmt.setInt(1, zborId);
+                stmt.setString(2, clasa);
+                stmt.setInt(3, nrLocuri);
+                stmt.setDouble(4, tarif);
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean adaugaZborSezonier(String codCursa, String modelAvion, String orasPlecare,
+                                      String orasDestinatie, String clasa, int nrLocuri,
+                                      double tarif, String perioadaInceput, String perioadaSfarsit) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Adaugă în Zboruri
+            String sqlZbor = "INSERT INTO Zboruri (companie_id, cod_cursa, model_avion, tip, oras_plecare, oras_destinatie) " +
+                    "VALUES (1, ?, ?, 'sezonier', ?, ?)";
+            int zborId;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sqlZbor, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setInt(1, Integer.parseInt(codCursa));
+                stmt.setString(2, modelAvion);
+                stmt.setString(3, orasPlecare);
+                stmt.setString(4, orasDestinatie);
+                stmt.executeUpdate();
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        zborId = rs.getInt(1);
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            // 2. Adaugă în ZboruriSezoniere
+            String sqlZborSezonier = "INSERT INTO ZboruriSezoniere (zbor_id, perioada_inceput, perioada_sfarsit) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlZborSezonier)) {
+                stmt.setInt(1, zborId);
+                stmt.setDate(2, Date.valueOf(perioadaInceput));
+                stmt.setDate(3, Date.valueOf(perioadaSfarsit));
+                stmt.executeUpdate();
+            }
+
+            // 3. Adaugă în ClaseZbor
+            String sqlClasa = "INSERT INTO ClaseZbor (zbor_id, clasa, nr_locuriClasa, tarif) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlClasa)) {
+                stmt.setInt(1, zborId);
+                stmt.setString(2, clasa);
+                stmt.setInt(3, nrLocuri);
+                stmt.setDouble(4, tarif);
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+
