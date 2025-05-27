@@ -1,6 +1,6 @@
 package view;
 
-import dao.ZborDAO;
+import dao.CautareZborDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -66,7 +66,7 @@ public class CautareZborView extends JFrame{
                 String plecare = orasPlecare.getText(); // citire date din câmpuri
                 String sosire = orasSosire.getText();
 
-                ZborDAO.cautaZboruri(plecare, sosire); // caută în baza de date și afișează rezultatele în consolă
+                CautareZborDAO.cautaZboruri(plecare, sosire); // caută în baza de date și afișează rezultatele în consolă
             }
         });
 

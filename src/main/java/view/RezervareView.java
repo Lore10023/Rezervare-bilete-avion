@@ -1,6 +1,6 @@
 package view;
 
-import dao.RezervareDAO;
+import dao.RezervarePasageriDAO;
 import model.*;
 import javax.swing.*;
 import java.awt.*;
@@ -154,7 +154,7 @@ public class RezervareView extends JFrame {
                     double pretTotal = rezervare.calculPretBilet();
                     pretTotalField.setText(String.format("%.2f", pretTotal));
 
-                    RezervareDAO.adaugaRezervare(nume, nrTel, nrAdulti, nrCopii, nrSeniori,
+                    RezervarePasageriDAO.adaugaRezervare(nume, nrTel, nrAdulti, nrCopii, nrSeniori,
                             masaInclusa, bagajSupl, discount, pretTotal,
                             modalitatePlata, plataCashValidata);
 

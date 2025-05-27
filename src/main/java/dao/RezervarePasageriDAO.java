@@ -4,7 +4,7 @@ import util.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class RezervareDAO {
+public class RezervarePasageriDAO {
 
     public static void adaugaRezervare(String nume, String nrTel, int nrAdulti, int nrCopii, int nrSeniori,
                                        boolean masaInclusa, boolean bagajSuplimentar, boolean discount,

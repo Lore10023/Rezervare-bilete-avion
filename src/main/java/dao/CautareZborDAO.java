@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class ZborDAO {
+public class CautareZborDAO {
     public static void cautaZboruri(String plecare, String sosire) {
         String query = "SELECT * FROM zboruri WHERE oras_plecare = ? AND oras_sosire = ?";
         try (Connection conn = DatabaseConnection.getConnection();
