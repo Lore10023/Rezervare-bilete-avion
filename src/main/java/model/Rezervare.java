@@ -140,8 +140,8 @@ public class Rezervare {
             pretbaza=pretbaza+pretbaza*0.05;
         }
 
-        DiscountTurRetur dtr=new DiscountTurRetur();
-        pret= dtr.calculeazaDiscount(this,pretbaza);
+            DiscountTurRetur dtr=new DiscountTurRetur();
+            pret= dtr.calculeazaDiscount(this,pretbaza);
 
         return pret;
     }
