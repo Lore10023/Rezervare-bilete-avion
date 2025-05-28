@@ -1,5 +1,6 @@
 package view;
 
+import view.RezervareView;
 import dao.CautareZborDAO;
 import javax.swing.*;
 import java.awt.*;
@@ -9,69 +10,132 @@ import java.awt.event.ActionListener;
 public class CautareZborView extends JFrame{
     private JTextField orasPlecare;
     private JTextField orasSosire;
+    private JTextField dataPlecare;
+    private JTextField nrPersoane;
+    private JCheckBox checkRetur;
+    private JTextField dataRetur;
+    private JTextArea rezultateTur;
+    private JTextArea rezultateRetur;
     private JButton cautaButton;
+    private JButton rezervareButton;
+
 
     public CautareZborView() {
-        setTitle("Căutare Zboruri"); // titlu fereastra
-        setSize(300, 250); // dimensiune fereastra
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // inchidere aplicatie
-        setLocationRelativeTo(null); // centrare fereastra pe ecran
+        setTitle("Căutare Zboruri");
+        setSize(600, 700);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
+        // Inițializare componente
         orasPlecare = new JTextField(10);
         orasSosire = new JTextField(10);
-        cautaButton = new JButton("Caută");
+        dataPlecare = new JTextField(10);
+        dataRetur = new JTextField(10);
+        dataRetur.setEnabled(false);
+        nrPersoane = new JTextField(5);
+        checkRetur = new JCheckBox("Doresc și retur");
+        cautaButton = new JButton("Caută zboruri");
 
-        // creare panel principal
+        rezultateTur = new JTextArea(10, 50);
+        rezultateTur.setEditable(false);
+        rezultateRetur = new JTextArea(10, 50);
+        rezultateRetur.setEditable(false);
+        rezultateRetur.setEnabled(false);
+        rezervareButton = new JButton("Vreau să fac rezervare");
+
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        gbc.insets = new Insets(5, 5, 5, 5); // spațiu între componente
+        int y = 0;
+        panel.add(new JLabel("Oraș plecare:"), gbcAt(0, y));
+        panel.add(orasPlecare, gbcAt(1, y++));
 
-        // Label "Oraș plecare"
-        gbc.gridx = 0; // coloana 0
-        gbc.gridy = 0; // rândul 0
-        gbc.anchor = GridBagConstraints.LINE_END; // aliniază eticheta la dreapta
-        panel.add(new JLabel("Oraș plecare:"), gbc);
+        panel.add(new JLabel("Oraș sosire:"), gbcAt(0, y));
 
-        // TextField oraș plecare
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(orasPlecare, gbc);
+        panel.add(orasSosire, gbcAt(1, y++));
 
-        // Label "Oraș sosire"
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Oraș sosire:"), gbc);
+        panel.add(new JLabel("Data plecare (YYYY-MM-DD):"), gbcAt(0, y));
+        panel.add(dataPlecare, gbcAt(1, y++));
 
-        // TextField oraș sosire
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(orasSosire, gbc);
+        panel.add(new JLabel("Număr persoane:"), gbcAt(0, y));
+        panel.add(nrPersoane, gbcAt(1, y++));
 
-        // Buton caută, pe linie nouă, centrat
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2; // ocupă ambele coloane
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(cautaButton, gbc);
+        panel.add(checkRetur, gbcAt(0, y++, 2));
+
+        panel.add(new JLabel("Data retur (YYYY-MM-DD):"), gbcAt(0, y));
+        panel.add(dataRetur, gbcAt(1, y++));
+
+        panel.add(cautaButton, gbcAt(0, y++, 2));
+        panel.add(rezervareButton, gbcAt(0, y++, 2));
+
+        panel.add(new JLabel("Rezultate zbor tur:"), gbcAt(0, y++, 2));
+        panel.add(new JScrollPane(rezultateTur), gbcAt(0, y++, 2));
+
+        panel.add(new JLabel("Rezultate zbor retur:"), gbcAt(0, y++, 2));
+        panel.add(new JScrollPane(rezultateRetur), gbcAt(0, y++, 2));
 
         add(panel);
+
+        checkRetur.addActionListener(e -> {
+            boolean selected = checkRetur.isSelected();
+            dataRetur.setEnabled(selected);
+            rezultateRetur.setEnabled(selected);
+        });
 
         cautaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String plecare = orasPlecare.getText(); // citire date din câmpuri
+                String plecare = orasPlecare.getText();
                 String sosire = orasSosire.getText();
+                String dataT = dataPlecare.getText();
+                String nr = nrPersoane.getText();
 
-                CautareZborDAO.cautaZboruri(plecare, sosire); // caută în baza de date și afișează rezultatele în consolă
+                if (plecare.isEmpty() || sosire.isEmpty() || dataT.isEmpty() || nr.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Completează toate câmpurile pentru zborul tur!");
+                    return;
+                }
+
+                rezultateTur.setText(CautareZborDAO.cautaZboruri(plecare, sosire, dataT, Integer.parseInt(nr)));
+
+                if (checkRetur.isSelected()) {
+                    String dataR = dataRetur.getText();
+                    if (dataR.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Introdu data returului!");
+                        return;
+                    }
+                    rezultateRetur.setText(CautareZborDAO.cautaZboruri(sosire, plecare, dataR, Integer.parseInt(nr)));
+                }
             }
         });
 
-        setVisible(true); // fereastra este afișată
+        rezervareButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose(); // închide fereastra curentă
+                new RezervareView(); // deschide fereastra de rezervare
+            }
+        });
+
+        setVisible(true);
     }
+
+    private GridBagConstraints gbcAt(int x, int y) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = x;
+        gbc.gridy = y;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        return gbc;
+    }
+
+    private GridBagConstraints gbcAt(int x, int y, int width) {
+        GridBagConstraints gbc = gbcAt(x, y);
+        gbc.gridwidth = width;
+        return gbc;
+    }
+
     public static void main(String[] args) {
         new CautareZborView();
     } // se creează și afișează fereastra atunci când se rulează programul
