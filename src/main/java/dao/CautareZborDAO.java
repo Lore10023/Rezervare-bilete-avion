@@ -6,16 +6,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class CautareZborDAO {
-    public static String cautaZboruri(String plecare, String sosire, String data, int nrPersoane) {
+    public static String cautaZboruri(String plecare, String sosire, int nrPersoane) {
         StringBuilder rezultate = new StringBuilder();
-        String query = "SELECT * FROM zboruri WHERE oras_plecare = ? AND oras_destinatie = ?";
+
+        String query = "SELECT * FROM zboruri WHERE oras_plecare = ? AND oras_sosire = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement st = conn.prepareStatement(query)) {
 
             st.setString(1, plecare);
             st.setString(2, sosire);
-            st.setString(3, data);
 
             ResultSet rs = st.executeQuery();
 
