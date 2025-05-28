@@ -84,10 +84,10 @@ public class CautareZborView extends JFrame{
                     return;
                 }
 
-                rezultateTur.setText(CautareZborDAO.cautaZboruri(plecare, sosire, Integer.parseInt(nr)));
+                rezultateTur.setText(CautareZborDAO.cautaZboruriTur(plecare, sosire, Integer.parseInt(nr)));
 
                 if (checkRetur.isSelected()) {
-                    rezultateRetur.setText(CautareZborDAO.cautaZboruri(sosire, plecare, Integer.parseInt(nr)));
+                    rezultateRetur.setText(CautareZborDAO.cautaZboruriRetur(plecare, sosire, Integer.parseInt(nr)));
                 }
             }
         });
