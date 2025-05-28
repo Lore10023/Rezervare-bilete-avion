@@ -23,7 +23,7 @@ public class PersonalLoginView extends JFrame {
         loginBtn.addActionListener(e -> {
             try {
                 Connection conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/sistemrezervari", "root", "Butary.25");
+                        "jdbc:mysql://localhost:3306/sistemrezervari", "root", "programITnou24");
                 PersonalController controller = new PersonalController(conn);
 
                 if (controller.autentificare(codField.getText())) {

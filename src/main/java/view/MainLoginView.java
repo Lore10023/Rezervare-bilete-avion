@@ -1,5 +1,8 @@
 package view;
 
+import controller.LoginCompanieController;
+import dao.CompanieDAO;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -18,7 +21,11 @@ public class MainLoginView extends JFrame {
 
         // Acțiune pentru login companie
         btnCompanie.addActionListener(e -> {
-            new LoginCompanieView().setVisible(true);
+            LoginCompanieView loginView = new LoginCompanieView();
+            CompanieDAO dao = new CompanieDAO();
+            new LoginCompanieController(loginView, dao);
+
+            loginView.setVisible(true);
             dispose();
         });
 
