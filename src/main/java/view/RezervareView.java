@@ -6,175 +6,156 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RezervareView extends JFrame {
-    private JTextField numeField;
-    private JTextField nrTelField;
-    private JTextField nrAdultiField;
-    private JTextField nrCopiiField;
-    private JTextField nrSenioriField;
-    private JCheckBox masaInclusaCheck;
-    private JCheckBox bagajSuplCheck;
-    private JCheckBox discountCheck;
-    private JTextField pretTotalField;
-    private JComboBox<String> modalitatePlataCombo;
-    private JCheckBox plataCacheValidataCheck;
-    private JComboBox<Clasa> clasaCombo;
-    private JComboBox<Zbor> zborTurCombo;
-    private JComboBox<Zbor> zborReturCombo;
-    private JButton rezervaButton;
-
     public RezervareView() {
         setTitle("Rezervare Bilet");
-        setSize(400, 700);
+        setSize(450, 750);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLayout(new GridLayout(0, 2, 10, 10));
 
-        numeField = new JTextField(15);
-        nrTelField = new JTextField(15);
-        nrAdultiField = new JTextField(5);
-        nrCopiiField = new JTextField(5);
-        nrSenioriField = new JTextField(5);
-        masaInclusaCheck = new JCheckBox("Masă inclusă");
-        bagajSuplCheck = new JCheckBox("Bagaj suplimentar");
-        discountCheck = new JCheckBox("Discount tur-retur aplicat");
-        pretTotalField = new JTextField(10);
-        modalitatePlataCombo = new JComboBox<>(new String[]{"card", "cache"});
-        plataCacheValidataCheck = new JCheckBox("Plata cash validată");
-        clasaCombo = new JComboBox<>(Clasa.values());
-        zborTurCombo = new JComboBox<>();
-        zborReturCombo = new JComboBox<>();
-        rezervaButton = new JButton("Rezervă");
+        // Componente de interfață
+        JTextField tfCodCursa = new JTextField();
+        JTextField tfNume = new JTextField();
+        JTextField tfTel = new JTextField();
+        JTextField tfAdulti = new JTextField("1");
+        JTextField tfCopii = new JTextField("0");
+        JTextField tfSeniori = new JTextField("0");
 
-        // TODO: Populează zborTurCombo și zborReturCombo cu obiecte Zbor valide
-        // zborTurCombo.addItem(...);
-        // zborReturCombo.addItem(...);
+        JCheckBox cbMasa = new JCheckBox("Masă inclusă");
+        JCheckBox cbBagaje = new JCheckBox("Bagaje suplimentare");
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        JComboBox<Clasa> cbClasa = new JComboBox<>(Clasa.values());
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Nume:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(numeField, gbc);
+        JTextField tfDiscount = new JTextField();  // Discount în %
+        JComboBox<Plata> modalitatePlataCombo = new JComboBox<>(Plata.values());
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Nr. Tel:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(nrTelField, gbc);
+        JButton btnCalculeaza = new JButton("Calculează Preț");
+        JLabel lblRezultat = new JLabel("Preț total: ");
+        JButton btnRezervare = new JButton("Rezervare");
 
-        gbc.gridx = 0; gbc.gridy = 2; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Nr. Adulți:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(nrAdultiField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 3; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Nr. Copii:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(nrCopiiField, gbc);
+        // Adaugă componente în UI
+        add(new JLabel("Cod Cursa:")); add(tfCodCursa);
+        add(new JLabel("Nume:")); add(tfNume);
+        add(new JLabel("Telefon:")); add(tfTel);
+        add(new JLabel("Nr. Adulți:")); add(tfAdulti);
+        add(new JLabel("Nr. Copii:")); add(tfCopii);
+        add(new JLabel("Nr. Seniori:")); add(tfSeniori);
+        add(cbMasa); add(cbBagaje);
+        add(new JLabel("Clasa:")); add(cbClasa);
+        add(new JLabel("Discount manual (%):")); add(tfDiscount);
+        add(new JLabel("Modalitate plata: ")); add(modalitatePlataCombo);
+        add(btnCalculeaza); add(lblRezultat);
+        add(btnRezervare);
 
-        gbc.gridx = 0; gbc.gridy = 4; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Nr. Seniori:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(nrSenioriField, gbc);
+        btnCalculeaza.addActionListener(e -> {
+            try {
+                String nume = tfNume.getText();
+                String tel = tfTel.getText();
+                int adulti = Integer.parseInt(tfAdulti.getText());
+                int copii = Integer.parseInt(tfCopii.getText());
+                int seniori = Integer.parseInt(tfSeniori.getText());
+                boolean masaInclusa = cbMasa.isSelected();
+                boolean bagajeSuplimentare = cbBagaje.isSelected();
+                Clasa clasa = (Clasa) cbClasa.getSelectedItem();
+                Plata plata = (Plata) modalitatePlataCombo.getSelectedItem();
 
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(masaInclusaCheck, gbc);
+                Double discountCustom = null;
+                if (!tfDiscount.getText().isEmpty()) {
+                    double procent = Double.parseDouble(tfDiscount.getText());
+                    discountCustom = procent / 100.0;
+                }
 
-        gbc.gridy = 6;
-        panel.add(bagajSuplCheck, gbc);
+                // Zboruri fictive
+                Map<Clasa, Integer> locuri = new HashMap<>();
+                locuri.put(Clasa.ECONOMIE, 100);
+                locuri.put(Clasa.BUSINESS, 50);
+                locuri.put(Clasa.CLASA1, 10);
 
-        gbc.gridy = 7;
-        panel.add(discountCheck, gbc);
+                Map<Clasa, Double> tarife = new HashMap<>();
+                tarife.put(Clasa.ECONOMIE, 300.0);
+                tarife.put(Clasa.BUSINESS, 500.0);
+                tarife.put(Clasa.CLASA1, 800.0);
 
-        gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 1; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Preț total:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        pretTotalField.setEditable(false);
-        panel.add(pretTotalField, gbc);
+                Zbor zborTur = new ZborStandard("RO123", "Boeing 737", "București", "Paris",locuri, tarife);
+                Zbor zborReturn = new ZborStandard  ("RO124", "Boeing 737", "Paris", "București",locuri, tarife);
 
-        gbc.gridx = 0; gbc.gridy = 9; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Modalitate plată:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(modalitatePlataCombo, gbc);
+                // Creează rezervarea
+                Rezervare rezervare = new Rezervare(nume, tel, adulti, copii, seniori,
+                        masaInclusa, bagajeSuplimentare,
+                        zborReturn, zborTur, plata, clasa, discountCustom);
 
-        gbc.gridx = 0; gbc.gridy = 10; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Clasa:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(clasaCombo, gbc);
+                double pret = rezervare.calculPretBilet();
 
-        gbc.gridx = 0; gbc.gridy = 11; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Zbor tur:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(zborTurCombo, gbc);
+                lblRezultat.setText("Preț total: " + String.format("%.2f", pret) + " RON");
 
-        gbc.gridx = 0; gbc.gridy = 12; gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(new JLabel("Zbor retur:"), gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(zborReturCombo, gbc);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Completează corect câmpurile numerice!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Eroare: " + ex.getMessage());
+            }
+        });
 
-        gbc.gridx = 0; gbc.gridy = 13; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(plataCacheValidataCheck, gbc);
-
-        gbc.gridy = 14; gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(rezervaButton, gbc);
-
-        add(panel);
-
-        rezervaButton.addActionListener(new ActionListener() {
+        btnRezervare.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String nume = numeField.getText();
-                    String nrTel = nrTelField.getText();
-                    int nrAdulti = Integer.parseInt(nrAdultiField.getText());
-                    int nrCopii = Integer.parseInt(nrCopiiField.getText());
-                    int nrSeniori = Integer.parseInt(nrSenioriField.getText());
-                    boolean masaInclusa = masaInclusaCheck.isSelected();
-                    boolean bagajSupl = bagajSuplCheck.isSelected();
-                    boolean discount = discountCheck.isSelected();
-                    String modalitatePlata = (String) modalitatePlataCombo.getSelectedItem();
-                    boolean plataCashValidata = plataCacheValidataCheck.isSelected();
-                    Clasa clasa = (Clasa) clasaCombo.getSelectedItem();
-                    Zbor zborTur = (Zbor) zborTurCombo.getSelectedItem();
-                    Zbor zborRetur = discount ? (Zbor) zborReturCombo.getSelectedItem() : null;
+                    String nume = tfNume.getText();
+                    String tel = tfTel.getText();
+                    int adulti = Integer.parseInt(tfAdulti.getText());
+                    int copii = Integer.parseInt(tfCopii.getText());
+                    int seniori = Integer.parseInt(tfSeniori.getText());
+                    boolean masaInclusa = cbMasa.isSelected();
+                    boolean bagajeSuplimentare = cbBagaje.isSelected();
+                    Clasa clasa = (Clasa) cbClasa.getSelectedItem();
+                    Plata plata = (Plata) modalitatePlataCombo.getSelectedItem();
 
-                    Plata plata = Plata.valueOf(modalitatePlata.toUpperCase()); // enum Plata cu valori CASH, CARD
-
-                    Double procentCustom = null;
-                    if (discount) {
-                        procentCustom = 0.05; // procentul discountului tur-retur
+                    Double discountCustom = null;
+                    if (!tfDiscount.getText().isEmpty()) {
+                        discountCustom = Double.parseDouble(tfDiscount.getText()) / 100.0;
                     }
 
-                    Rezervare rezervare = new Rezervare(nume, nrTel, nrAdulti, nrCopii, nrSeniori,
-                            masaInclusa, bagajSupl, zborRetur, zborTur,
-                            plata, clasa, procentCustom);
 
-                    double pretTotal = rezervare.calculPretBilet();
-                    pretTotalField.setText(String.format("%.2f", pretTotal));
+                    // Zboruri fictive
+                    Map<Clasa, Integer> locuri = new HashMap<>();
+                    locuri.put(Clasa.ECONOMIE, 100);
+                    locuri.put(Clasa.BUSINESS, 50);
+                    locuri.put(Clasa.CLASA1, 10);
 
-                    RezervarePasageriDAO.adaugaRezervare(nume, nrTel, nrAdulti, nrCopii, nrSeniori,
-                            masaInclusa, bagajSupl, discount, pretTotal,
-                            modalitatePlata, plataCashValidata);
+                    Map<Clasa, Double> tarife = new HashMap<>();
+                    tarife.put(Clasa.ECONOMIE, 300.0);
+                    tarife.put(Clasa.BUSINESS, 500.0);
+                    tarife.put(Clasa.CLASA1, 800.0);
 
-                    JOptionPane.showMessageDialog(RezervareView.this, "Rezervarea a fost adăugată cu succes!");
+                    Zbor zborTur = new ZborStandard("RO123", "Boeing 737", "București", "Paris",locuri, tarife);
+                    Zbor zborReturn = new ZborStandard("RO124", "Boeing 737", "Paris", "București",locuri, tarife);
+
+                    Rezervare rezervare = new Rezervare(nume, tel, adulti, copii, seniori,
+                            masaInclusa, bagajeSuplimentare,
+                            zborReturn, zborTur, plata, clasa, discountCustom);
+
+                    double pret = rezervare.calculPretBilet();
+
+                    RezervarePasageriDAO.adaugaRezervare(rezervare, pret);
+                    JOptionPane.showMessageDialog(null, "Rezervarea a fost salvată cu succes!");
 
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(RezervareView.this, "Introduceți valori valide pentru numere!",
-                            "Eroare", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Completează corect câmpurile numerice!");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(RezervareView.this, "Eroare la adăugarea rezervării: " + ex.getMessage(),
-                            "Eroare", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Eroare: " + ex.getMessage());
                 }
             }
         });
 
 
-        setVisible(true); // fereastra este afișată
+
+        setVisible(true);
     }
 
     public static void main(String[] args) {
         new RezervareView();
-    } // se creează și afișează fereastra atunci când se rulează programul
+    }
 }

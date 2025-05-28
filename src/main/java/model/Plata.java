@@ -1,6 +1,6 @@
 package model;
 
 public enum Plata {
-    CARDUL,
+    CARD,
     CACHE
 }
