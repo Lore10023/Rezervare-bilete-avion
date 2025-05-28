@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 public class CautareZborDAO {
     public static String cautaZboruri(String plecare, String sosire, String data, int nrPersoane) {
         StringBuilder rezultate = new StringBuilder();
-        String query = "SELECT * FROM zboruri WHERE oras_plecare = ? AND oras_sosire = ? AND data_plecare = ?";
+        String query = "SELECT * FROM zboruri WHERE oras_plecare = ? AND oras_destinatie = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement st = conn.prepareStatement(query)) {
