@@ -133,10 +133,10 @@ public class GestionareZboruriView extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GestionareZboruriView view = new GestionareZboruriView();
-            view.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            GestionareZboruriView view = new GestionareZboruriView();
+//            view.setVisible(true);
+//        });
+//    }
 }

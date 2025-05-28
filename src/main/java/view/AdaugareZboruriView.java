@@ -2,6 +2,9 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+
 import controller.ZborController;
 
 public class AdaugareZboruriView extends JFrame {
@@ -84,6 +87,29 @@ public class AdaugareZboruriView extends JFrame {
         return tf;
     }
 
+    private void setPlaceholder(JTextField textField, String placeholder) {
+        textField.setText(placeholder);
+        textField.setForeground(Color.GRAY);
+
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setForeground(Color.GRAY);
+                    textField.setText(placeholder);
+                }
+            }
+        });
+    }
+
     private void adaugaRand(JLabel label, JComponent component, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -101,13 +127,28 @@ public class AdaugareZboruriView extends JFrame {
         panelFormular.removeAll();
 
         tfCodCursa = campText();
+        setPlaceholder(tfCodCursa, "Ex: 1009");
+
         tfModelAvion = campText();
+        setPlaceholder(tfModelAvion, "Ex: Boeing 737");
+
         tfOrasPlecare = campText();
+        setPlaceholder(tfOrasPlecare, "Ex: București");
+
         tfOrasDestinatie = campText();
+        setPlaceholder(tfOrasDestinatie, "Ex: Timișoara");
+
         tfNrLocuri = campText();
+        setPlaceholder(tfNrLocuri, "Ex: 150");
+
         tfTarif = campText();
+        setPlaceholder(tfTarif, "Ex: 299.99");
+
         tfZileSaptamana = campText();
+        setPlaceholder(tfZileSaptamana, "Ex: LUNI");
+
         tfOra = campText();
+        setPlaceholder(tfOra, "Ex: 14:30");
 
         rbBusiness = new JRadioButton("Business");
         rbClasa1 = new JRadioButton("Clasa 1");
@@ -147,44 +188,18 @@ public class AdaugareZboruriView extends JFrame {
         construieșteFormularRegulat();
 
         tfPerioadaInceput = campText();
+        setPlaceholder(tfPerioadaInceput, "Ex: 2024-06-01");
+
         tfPerioadaFinal = campText();
+        setPlaceholder(tfPerioadaFinal, "Ex: 2024-09-30");
 
         int y = panelFormular.getComponentCount() / 2;
         adaugaRand(label("Perioadă Început:"), tfPerioadaInceput, y++);
         adaugaRand(label("Perioadă Final:"), tfPerioadaFinal, y++);
-    }
 
-//    private void salveazaZbor() {
-//        String codCursa = tfCodCursa.getText();
-//        String modelAvion = tfModelAvion.getText();
-//        String orasPlecare = tfOrasPlecare.getText();
-//        String orasDestinatie = tfOrasDestinatie.getText();
-//        String nrLocuri = tfNrLocuri.getText();
-//        String tarif = tfTarif.getText();
-//        String zileSaptamana = tfZileSaptamana.getText();
-//        String ora = tfOra.getText();
-//
-//        String clasa = rbBusiness.isSelected() ? "Business" :
-//                rbClasa1.isSelected() ? "Clasa 1" : "Economie";
-//
-//        if (radioRegulat.isSelected()) {
-//            JOptionPane.showMessageDialog(this, "Zbor REGULAT salvat:\n" +
-//                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
-//                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
-//                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
-//                    "Zile: " + zileSaptamana + ", Ora: " + ora);
-//        } else {
-//            String perioadaInceput = tfPerioadaInceput.getText();
-//            String perioadaFinal = tfPerioadaFinal.getText();
-//
-//            JOptionPane.showMessageDialog(this, "Zbor SEZONIER salvat:\n" +
-//                    "Cod: " + codCursa + ", Avion: " + modelAvion + "\n" +
-//                    "Plecare: " + orasPlecare + " → " + orasDestinatie + "\n" +
-//                    "Locuri: " + nrLocuri + ", Clasa: " + clasa + ", Tarif: " + tarif + "\n" +
-//                    "Zile: " + zileSaptamana + ", Ora: " + ora + "\n" +
-//                    "Perioadă: " + perioadaInceput + " → " + perioadaFinal);
-//        }
-//    }
+        panelFormular.revalidate();
+        panelFormular.repaint();
+    }
 
     private void salveazaZbor() {
         try {
@@ -192,12 +207,26 @@ public class AdaugareZboruriView extends JFrame {
             String modelAvion = tfModelAvion.getText();
             String orasPlecare = tfOrasPlecare.getText();
             String orasDestinatie = tfOrasDestinatie.getText();
+
+            // Validare simplă să nu fie placeholder la câmpuri obligatorii
+            if (tfCodCursa.getForeground() == Color.GRAY ||
+                    tfModelAvion.getForeground() == Color.GRAY ||
+                    tfOrasPlecare.getForeground() == Color.GRAY ||
+                    tfOrasDestinatie.getForeground() == Color.GRAY) {
+                JOptionPane.showMessageDialog(this, "Completează toate câmpurile obligatorii!", "Atenție", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             int nrLocuri = Integer.parseInt(tfNrLocuri.getText());
             double tarif = Double.parseDouble(tfTarif.getText());
             String clasa = rbBusiness.isSelected() ? "Business" :
                     rbClasa1.isSelected() ? "Clasa1" : "Economie";
 
             if (radioRegulat.isSelected()) {
+                if (tfZileSaptamana.getForeground() == Color.GRAY || tfOra.getForeground() == Color.GRAY) {
+                    JOptionPane.showMessageDialog(this, "Completează toate câmpurile obligatorii!", "Atenție", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 String[] zileArray = tfZileSaptamana.getText().split(",");
                 String ora = tfOra.getText();
 
@@ -213,6 +242,10 @@ public class AdaugareZboruriView extends JFrame {
                     JOptionPane.showMessageDialog(this, "Eroare la adăugarea zborului!", "Eroare", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
+                if (tfPerioadaInceput.getForeground() == Color.GRAY || tfPerioadaFinal.getForeground() == Color.GRAY) {
+                    JOptionPane.showMessageDialog(this, "Completează toate câmpurile obligatorii!", "Atenție", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 String perioadaInceput = tfPerioadaInceput.getText();
                 String perioadaFinal = tfPerioadaFinal.getText();
 
@@ -228,13 +261,8 @@ public class AdaugareZboruriView extends JFrame {
                     JOptionPane.showMessageDialog(this, "Eroare la adăugarea zborului!", "Eroare", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Eroare: " + e.getMessage(), "Eroare", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Număr locuri sau tarif invalid!", "Eroare", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AdaugareZboruriView().setVisible(true));
     }
 }
