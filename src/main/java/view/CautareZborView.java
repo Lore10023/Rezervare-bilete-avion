@@ -14,7 +14,7 @@ public class CautareZborView extends JFrame{
     public CautareZborView() {
         setTitle("Căutare Zboruri"); // titlu fereastra
         setSize(300, 250); // dimensiune fereastra
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // inchidere aplicatie
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);// nu inchidere aplicatie
         setLocationRelativeTo(null); // centrare fereastra pe ecran
 
         orasPlecare = new JTextField(10);
