@@ -12,18 +12,22 @@ public class TestButaruNicoleta {
 
     @Test
     public void testCautareZborTurFaraRetur() {
-        String rezultat = CautareZborDAO.cautaZboruri("Bucuresti", "Paris",  1);
+        String rezultat = CautareZborDAO.cautaZboruriTur("Bucuresti", "Paris", 1);
         assertNotNull(rezultat);
-        assertTrue(rezultat.contains("Zbor") || !rezultat.isEmpty());
+        assertTrue(!rezultat.isEmpty() && rezultat.contains("Cod"));
     }
 
     @Test
     public void testCautareZborCuRetur() {
-        String tur = CautareZborDAO.cautaZboruri("Bucuresti", "Paris",  1);
-        String retur = CautareZborDAO.cautaZboruri("Paris", "Bucuresti",  1);
+        String tur = CautareZborDAO.cautaZboruriTur("Bucuresti", "Paris", 1);
+        String retur = CautareZborDAO.cautaZboruriRetur("Paris", "Bucuresti", 1);
+
         assertNotNull(tur);
         assertNotNull(retur);
+        assertTrue(!tur.isEmpty());
+        assertTrue(!retur.isEmpty());
     }
+
 
     @Test
     public void testCalculPretRezervare() {
