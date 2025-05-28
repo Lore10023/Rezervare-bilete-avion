@@ -10,10 +10,8 @@ import java.awt.event.ActionListener;
 public class CautareZborView extends JFrame{
     private JTextField orasPlecare;
     private JTextField orasSosire;
-    private JTextField dataPlecare;
     private JTextField nrPersoane;
     private JCheckBox checkRetur;
-    private JTextField dataRetur;
     private JTextArea rezultateTur;
     private JTextArea rezultateRetur;
     private JButton cautaButton;
@@ -29,9 +27,6 @@ public class CautareZborView extends JFrame{
         // Inițializare componente
         orasPlecare = new JTextField(10);
         orasSosire = new JTextField(10);
-        dataPlecare = new JTextField(10);
-        dataRetur = new JTextField(10);
-        dataRetur.setEnabled(false);
         nrPersoane = new JTextField(5);
         checkRetur = new JCheckBox("Doresc și retur");
         cautaButton = new JButton("Caută zboruri");
@@ -56,16 +51,10 @@ public class CautareZborView extends JFrame{
 
         panel.add(orasSosire, gbcAt(1, y++));
 
-        panel.add(new JLabel("Data plecare (YYYY-MM-DD):"), gbcAt(0, y));
-        panel.add(dataPlecare, gbcAt(1, y++));
-
         panel.add(new JLabel("Număr persoane:"), gbcAt(0, y));
         panel.add(nrPersoane, gbcAt(1, y++));
 
         panel.add(checkRetur, gbcAt(0, y++, 2));
-
-        panel.add(new JLabel("Data retur (YYYY-MM-DD):"), gbcAt(0, y));
-        panel.add(dataRetur, gbcAt(1, y++));
 
         panel.add(cautaButton, gbcAt(0, y++, 2));
         panel.add(rezervareButton, gbcAt(0, y++, 2));
@@ -80,7 +69,6 @@ public class CautareZborView extends JFrame{
 
         checkRetur.addActionListener(e -> {
             boolean selected = checkRetur.isSelected();
-            dataRetur.setEnabled(selected);
             rezultateRetur.setEnabled(selected);
         });
 
@@ -89,23 +77,17 @@ public class CautareZborView extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 String plecare = orasPlecare.getText();
                 String sosire = orasSosire.getText();
-                String dataT = dataPlecare.getText();
                 String nr = nrPersoane.getText();
 
-                if (plecare.isEmpty() || sosire.isEmpty() || dataT.isEmpty() || nr.isEmpty()) {
+                if (plecare.isEmpty() || sosire.isEmpty()  || nr.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Completează toate câmpurile pentru zborul tur!");
                     return;
                 }
 
-                rezultateTur.setText(CautareZborDAO.cautaZboruri(plecare, sosire, dataT, Integer.parseInt(nr)));
+                rezultateTur.setText(CautareZborDAO.cautaZboruri(plecare, sosire, Integer.parseInt(nr)));
 
                 if (checkRetur.isSelected()) {
-                    String dataR = dataRetur.getText();
-                    if (dataR.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Introdu data returului!");
-                        return;
-                    }
-                    rezultateRetur.setText(CautareZborDAO.cautaZboruri(sosire, plecare, dataR, Integer.parseInt(nr)));
+                    rezultateRetur.setText(CautareZborDAO.cautaZboruri(sosire, plecare, Integer.parseInt(nr)));
                 }
             }
         });
