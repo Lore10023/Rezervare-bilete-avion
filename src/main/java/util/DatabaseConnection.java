@@ -8,7 +8,7 @@ public class DatabaseConnection {
 
     private static final String URL = "jdbc:mysql://localhost:3306/SistemRezervari?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "Raluca09";
+    private static final String PASSWORD = "programITnou24";
 
     private static Connection connection = null;
 
